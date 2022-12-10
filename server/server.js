@@ -79,6 +79,30 @@ app.post("/upload_chunk", async (req, res) => {
   }
 });
 
+// 获取已经存在的切片接口
+app.get("/upload_already", async (req, res) => {
+  const { hash } = req.query;
+  const path = `${uploadDir}/${hash}`;
+  try {
+    const fileList = (await existsFile(path)) ? fs.readdirSync(path) : [];
+    fileList.sort((a, b) => {
+      let reg = /_(\d+)/;
+      return reg.exec(a)[1] - reg.exec(b)[1];
+    });
+    res.send({
+      code: 0,
+      codeText: "获取成功",
+      fileList,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      code: 1,
+      codeText: "获取失败" + err,
+    });
+  }
+});
+
 /**
  * 合并切片接口
  */
